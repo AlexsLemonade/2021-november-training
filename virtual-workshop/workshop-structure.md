@@ -5,7 +5,7 @@ nav_title: Structure
 
 Our goals in constructing the virtual workshop structure are the following:
 
-* You will be introduced to `<workshop content>` through a series of hands-on exercises.
+* You will be introduced to the R programming language and the processing and analysis of scRNA-seq data through a series of hands-on exercises.
 * You are able to ask questions and receive 1:1 assistance as needed during instruction. Because our instruction is almost entirely through hands-on exercises, we want to make sure we can help you through any difficulties or errors you may encounter.
 * You have the opportunity to practice the skills you learn during instruction in consultation sessions with the support of your instructors.
 * You receive consultation about the data you are working with to answer your research questions.
@@ -53,7 +53,7 @@ You can read more about how we use Zoom and Slack in the [Zoom procedures](../vi
 
 **During consultation sessions**, you can work through exercise notebooks included as part of the course, with your own data, or with publicly available data related to your research.
 
-The main method we use for communication durion consultation sessions is Slack.
+The main method we use for communication during consultation sessions is Slack.
 You can use the training-specific private channel to [post errors](./posting-errors-guidelines.md), get help with debugging, and interact with other participants as they work through exercises.
 We recommend you follow the [posting for error help guidelines](./posting-errors-guidelines.md) so you can maximize others' abilities to help you resolve your error.
 
@@ -64,11 +64,11 @@ If you need assistance and would like to share your screen, an instructor will i
 
 Your instructors will be available via Slack during the consultation sessions listed in the [workshop schedule](SCHEDULE.md).
 You may also remain in the Zoom meeting used for the day's instruction session, which will be used for breakout room functionality for grouping participants that want to work together.
-If you need to share your screen with an instructor during the a consultation day, the instructor will [start a Zoom meeting and you will be able to join from Slack](../virtual-setup/zoom-procedures.md#joining-a-zoom-call-from-slack).
+If you need to share your screen with an instructor during a consultation day, the instructor will [start a Zoom meeting and you will be able to join from Slack](../virtual-setup/zoom-procedures.md#joining-a-zoom-call-from-slack).
 
 ### Using communication platforms during consultation sessions
 
-Our goal during consultation days is to make sure you get the support you need from instructors, to facilitate peer-to-peer learning, and to maximize the information that is available to everyone a form that is discoverable in the future.
+Our goal during consultation days is to make sure you get the support you need from instructors, to facilitate peer-to-peer learning, and to maximize the information that is available to everyone in a form that is discoverable in the future.
 For these reasons, the main process for communication on consultation days is the training-specific Slack channel.
 We recommend following these [posting for error help guidelines](posting-errors-guidelines.md) when you request help for errors you encounter in your code.
 
