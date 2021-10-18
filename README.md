@@ -1,6 +1,6 @@
 # Childhood Cancer Data Lab - 2021 November Training Workshop
 
-Please view the course website to get started: [https://alexslemonade.github.io/2021-november-training/]()
+Please view the course website to get started: https://alexslemonade.github.io/2021-november-training/
 
 <!--
 ## Local development 
