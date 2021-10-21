@@ -1,6 +1,6 @@
 ---
 title: Resources for Consultation Sessions
-nav_title: Consultation Sessions
+nav_title: Resources
 ---
 
 Our consultation sessions are designed for you to spend your time as you would like with the support of your instructors.
@@ -14,18 +14,18 @@ On this page, we've assembled some resources you may find helpful during these s
 - [Module cheatsheets](#module-cheatsheets)
 - [Working with your own data on RStudio Server](#working-with-your-own-data-on-rstudio-server)
 - [Obtaining practice datasets](#obtaining-practice-datasets)
-  	- [refine.bio](#refinebio)
-   	 	- [Microarray data on refine.bio](#microarray-data-on-refinebio)
-   	 	- [Bulk RNA-seq data on refine.bio](#bulk-rna-seq-data-on-refinebio)
+	- [refine.bio](#refinebio)
+	- [Microarray data on refine.bio](#microarray-data-on-refinebio)
+	- [Bulk RNA-seq data on refine.bio](#bulk-rna-seq-data-on-refinebio)
 	- [Single-cell RNA-seq data](#single-cell-rna-seq-data)
-   	 	- [_Tabula Muris_ data](#tabula-muris-data)
-   	 	- [Human Cell Atlas data](#human-cell-atlas-data)
-   	 	- [Reading `loom` format data in R](#reading-loom-format-data-in-r) 
+		- [_Tabula Muris_ data](#tabula-muris-data)
+		- [Human Cell Atlas data](#human-cell-atlas-data)
+		- [Reading `loom` format data in R](#reading-loom-format-data-in-r)
 - [Transcriptome indices for common organisms](#transcriptome-indices-for-common-organisms)
-  - [_Homo sapiens_](#homo-sapiens)
-  - [_Mus musculus_](#mus-musculus)
-  - [_Danio rerio_](#danio-rerio)
-  - [_Canis lupus familiaris_](#canis-lupus-familiaris)
+	- [_Homo sapiens_](#homo-sapiens)
+	- [_Mus musculus_](#mus-musculus)
+	- [_Danio rerio_](#danio-rerio)
+	- [_Canis lupus familiaris_](#canis-lupus-familiaris)
 
 ## Module cheatsheets
 
