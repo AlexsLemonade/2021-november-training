@@ -36,7 +36,7 @@ A tentative schedule for the November 2021 CCDL Virtual Training Workshop appear
 |             | [Consultation session](workshop-structure.md#consultation-sessions) | [Slack channel](../virtual-setup/slack-procedures.md#general-use) |
 | 5:00  PM    | End             |         
 | **Day 4**   | **2021-11-04**  <br> [_**Introduction to Pathway Analysis**_](https://github.com/AlexsLemonade/training-modules/tree/master/scRNA-seq#readme) | | 
-| 12:00 PM    | Introduction to Pathway Analysis <br> [Pathway analysis slides (pdf)](../slides/)  |  Zoom: [Main Session](../virtual-setup/zoom-procedures.md#joining-a-zoom-call) |
+| 12:00 PM    | Introduction to Pathway Analysis <br> [Pathway analysis slides (pdf)](../slides/2021-11-04_Intro-to-Pathway-Analysis.pdf)  |  Zoom: [Main Session](../virtual-setup/zoom-procedures.md#joining-a-zoom-call) |
 | 12:30 PM    | [Pathway analysis: Over-representation analysis](https://htmlpreview.github.io/?https://github.com/AlexsLemonade/training-modules/blob/{{site.release_tag}}/scRNA-seq/06-overrepresentation_analysis.nb.html) | Zoom: [Main Session](../virtual-setup/zoom-procedures.md#joining-a-zoom-call) |
 | 2:00 PM     | [Pathway analysis: Gene Set Enrichment Analysis](https://htmlpreview.github.io/?https://github.com/AlexsLemonade/training-modules/blob/{{site.release_tag}}/scRNA-seq/07-gene_set_enrichment_analysis.nb.html) | Zoom: [Main Session](../virtual-setup/zoom-procedures.md#joining-a-zoom-call) | 
 | 3:00 PM     | Questions and introduction to the exercise | Zoom: [Breakout Rooms](../virtual-setup/zoom-procedures.md#using-zoom-breakout-rooms) |
