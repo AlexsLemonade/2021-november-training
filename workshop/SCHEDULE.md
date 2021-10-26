@@ -2,8 +2,7 @@
 title: Virtual Workshop Schedule
 nav_title: Schedule
 ---
-A tentative schedule for the November 2021 CCDL Virtual Training Workshop appears below. ⚠️ Not all links are working yet! ⚠️
-
+A tentative schedule for the November 2021 CCDL Virtual Training Workshop appears below.
 
 *Note: All times are [EDT (UTC−04:00)](https://www.timeanddate.com/time/zones/edt)*
 <!--See an example from a past virtual workshop here: https://github.com/AlexsLemonade/2020-may-training/wiki/Schedule --> 
