@@ -1,0 +1,179 @@
+---
+title: "Day 1: Intro to R & tidyverse Supplementary Notebook"
+author: Josh Shapiro
+date: 2021-11-01
+output:   
+  html_notebook: 
+    toc: true
+    toc_float: true
+---
+
+
+## Introduction
+
+This notebook addresses some questions that came up after the first day of the CCDL workshop.
+
+- [Installing packages](#installing-packages)
+- [`dplyr` join functions](#dplyr-join-functions)
+
+### How to use this notebook: 
+
+While it is fine to just read this page as is, if you want to get the Rmarkdown notebook itself to work with, you can follow the following steps:
+
+1. Click the `Code` button in the upper right of this page and choose `Download Rmd` to save this notebook (`2021-09-20_muddiest_points.Rmd`) to your computer.
+If you have RStudio installed on your computer, you can then open the file directly.
+
+Otherwise you can add it to the CCDL RStudio server to work with it there with the following additional steps:
+
+2. Navigate to RStudio server.  
+3. In the `File` pane, navigate to `training-modules/intro-to-R-tidyverse`.     
+4. Click the `Upload` button in the `File` pane.   
+5. Click `Choose file` and find this `Rmd` file on your computer, then click `OK`  
+
+
+Now you can open up this file and run it on the Server. 
+
+## Installing packages
+
+We do not explicitly cover package installation during this training, mostly for time reasons, but also because we want to make sure everything is there and ready to go!
+
+But of course when you go to work on your own machine, some R packages may not be installed, so you may need to know how to install them!
+Usually, this is pretty straightforward, and we will cover the most common situations here.
+
+There are two main sources for R packages that we use, [CRAN](https://cran.r-project.org/) and [Bioconductor](https://bioconductor.org/).
+Installation of packages from the two sources is slightly different.
+
+### CRAN packages
+
+Most general use packages (not biology-specific) are available through CRAN, the Comprehensive R Archive Network.
+To install a package from CRAN, you use the `install.packages()` function, which will install the requested package(s) as well as any packages they might depend on.
+So if I wanted to install (or update) the `svglite` package (which allows `ggplot2::ggsave` to write out SVG files), I would use the following command:
+
+```{r, eval = FALSE}
+install.packages("svglite")
+```
+
+If I had more than one package to install, I might use a vector of the package names (each enclosed by quotes):
+
+```{r eval = FALSE}
+install.packages(c("magrittr", "dplyr", "palmerpenguins"))
+```
+
+The first time you use `install.packages()` you may be prompted (in the Console) to choose a "mirror". 
+You will need to enter any responses in the console.
+Using option `0`, the "cloud", is usually safe, but you can choose another location if you prefer.
+
+If you are using RStudio, there is also an "Install" button in the `Packages` tab, which will prompt you to enter the packages you want to install, but this will only work with CRAN packages.
+
+### Bioconductor packages
+
+To install [Bioconductor](https://bioconductor.org/) packages, you need to use a specialized installation function from the `BiocManager` package.
+So the first step is to install that package from CRAN:
+
+```{r eval = FALSE}
+install.packages("BiocManager")
+```
+
+Once that is installed, you can use `BiocManager::install()` to install any packages that are part of Bioconductor and their dependencies. 
+(In fact you could use this always: it will find CRAN packages as well!)
+
+```{r, eval = FALSE}
+BiocManager::install("DESeq2")
+```
+
+`BiocManager::install()` tends to be a bit more chatty than the base R installation; be on the lookout for prompts that you need to respond to in the console.
+
+## `dplyr` join functions
+
+I briefly talked about join functions, which can be used to merge two data frames together. 
+They do this by looking at a column (or columns) to find matching rows, then make a new data frame with all of the columns from both of the original data frames (though usually only one copy of the column that was used for matching).
+As there are a variety of ways one might want the matching to proceed, there are a nubmer of different join functions, so we will illustrate a few of them below.
+
+First, let's create a couple of data frames. 
+These will share a column called `id`, but have otherwise different columns.
+Some of the values in the id column will be the same between the data frames, but some will appear in only one of the two data frames.
+
+```{r}
+foo_df <- data.frame(
+  id = c("a1", "a2", "a3", "b1", "b2", "b3"),
+  foo_value = c(1, 2, 3, 4, 5, 6),
+  foo_batch = c(1, 1, 2, 2, 3, 3)
+)
+foo_df
+```
+```{r}
+bar_df <- data.frame(
+  id = c("b3", "b2", "b1", "c1", "c2", "c3"),
+  bar_value = c(21, 45, 32, 12, 30, 47),
+  bar_batch = c(1, 1, 2, 2, 3, 3)
+)
+bar_df
+```
+
+Notice that the `id` values are not in the same order, so we can't just assume that if we pasted the two data frames side by side we would get the same values.
+
+### Inner join
+
+An inner join (`dplyr::inner_join()`) will find the matches between the two data frames in the specified columns and create a new table with only the shared rows.
+We give it the two data frames we want to join as the first two arguments, followed by the `by` argument to say which column(s) from each to use for matching.
+Here I am matching on the `id` column from each of the two data frames, and I am being very explicit by giving the first table column name and the second column name in quotes, separated by `=`.
+
+```{r}
+dplyr::inner_join(foo_df, bar_df, by = c("id" = "id"))
+```
+
+If the column names I want to join on are the same, I can also just use the single column name. 
+(I could even leave the `by` argument off completely, and let the join function guess, but that is dangerous!)
+
+```{r}
+dplyr::inner_join(foo_df, bar_df, by = "id")
+```
+
+I can also join on more than one column at a time:
+Here I will join both on the `id` columns and the respective `_batch` columns.
+
+```{r}
+dplyr::inner_join(foo_df, bar_df, by = c("id" = "id", "foo_batch" = "bar_batch"))
+```
+Notice that `bar_batch` no longer appears, because it would be redundant with `foo_batch`.
+
+### Left (and right) join
+
+Other joins follow the same syntax, but return different results. 
+Left join (`dplyr::left_join()`)will return a row for every value in the first data frame, whether or not a match is found in the second data frame.
+If there is no match, the column values that would have come from the second data frame are filled in with `NA`:
+
+```{r}
+dplyr::left_join(foo_df, bar_df, by = "id")
+```
+
+Right join is the same, but keeping all values from the _second_ data frame.
+
+```{r}
+dplyr::right_join(foo_df, bar_df, by = "id")
+```
+### Full join
+
+Last we have full join, which will include _all_ rows from both tables whether or not there is a match, filling in `NA` as necessary.
+
+```{r}
+dplyr::full_join(foo_df, bar_df, by = "id")
+```
+
+### Other join features
+
+I've really only scratched the surface here, exploring a very simple example. 
+There is a lot more to explore, including what happens when a value in the match column(s) appears more than once in one of the data frames.
+
+For more information, we recommend Jenny Bryan's excellent "[join cheatsheet](https://stat545.com/join-cheatsheet.html)". 
+(Don't let the name fool you; it's a full chapter!)
+
+## Session Info
+```{r}
+sessionInfo()
+```
+
+
+
+
+
