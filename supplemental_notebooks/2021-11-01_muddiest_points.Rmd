@@ -141,7 +141,7 @@ Notice that `bar_batch` no longer appears, because it would be redundant with `f
 
 Other joins follow the same syntax, but return different results. 
 Left join (`dplyr::left_join()`)will return a row for every value in the first data frame, whether or not a match is found in the second data frame.
-If there is no match, the column values that would have come from the second data frame are filled in wiht `NA`:
+If there is no match, the column values that would have come from the second data frame are filled in with `NA`:
 
 ```{r}
 dplyr::left_join(foo_df, bar_df, by = "id")
