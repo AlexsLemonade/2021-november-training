@@ -138,7 +138,7 @@ For more information on working with `SingleCellExperiments`, we encourage you t
 Before performing filtering in `02-filtering_scRNA.Rmd`, we created quite a few density plots to help us look at the distribution of various quality metrics. 
 When we did that, we skipped the `data` argument and only used the `mapping` argument in `ggplot`. 
 The reason that we did this is because the input that we were using was a vector rather than a data frame. 
-When using `ggplot`, the expected input for the `data` argument is a data frame. 
+When using `ggplot`, the expected input for the `data` argument is a data frame (which is not synonymous to the SingleCellExperiment object's DataFrame). 
 If we were to use a data frame, `mapping` is then used to signify which columns of the data frame would need to be plotted on the x-axis and which columns would need to be plotted on the y-axis. 
 
 We can grab the `colData` from our `SingleCellExperiment` object and can plot the `sum` column, or total UMI counts, on the x-axis, and the `detected` column, or the number of genes detected, on the y-axis. 
