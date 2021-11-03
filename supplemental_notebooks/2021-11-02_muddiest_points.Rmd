@@ -1,0 +1,280 @@
+---
+title: 'Day 2: scRNA-seq Quantification Supplementary Notebook'
+author: "Ally Hawkins"
+date: '2021-11-02'
+output:
+  html_document:
+    toc: yes
+    df_print: paged
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+## Introduction
+
+This notebook addresses some questions that came up after the second day of class covering scRNA-seq quantification. 
+
+- [SingleCellExperiment objects](#singleCellExperiment-objects)
+- [More on ggplots](#more-on-ggplots)
+- [Demystifying normalization](#demystifying-normalization)
+- [Working with multiple samples](#data-integration)
+
+### How to use this notebook: 
+
+While it is fine to just read this page as is, if you want to get the Rmarkdown notebook itself to work with, you can follow the following steps:
+
+1. Click the `Code` button in the upper right of this page and choose `Download Rmd` to save this notebook (`2021-11-02_muddiest_points.Rmd`) to your computer.
+If you have RStudio installed on your computer, you can then open the file directly.
+
+Otherwise you can add it to the CCDL RStudio server to work with it there with the following additional steps:
+
+2. Navigate to RStudio server.  
+3. In the `File` pane, navigate to `training-modules/scRNA-seq`.     
+4. Click the `Upload` button in the `File` pane.   
+5. Click `Choose file` and find this `Rmd` file on your computer, then click `OK`  
+
+
+Now you can open up this file and run it on the Server. 
+
+## Setup 
+
+```{r}
+library(magrittr)
+library(ggplot2)
+library(SingleCellExperiment)
+```
+
+
+## SingleCellExperiment objects 
+
+In the `02-filtering_scRNA.Rmd` notebook, we introduced the concept of using a `SingleCellExperiment` object to store the cell by gene counts matrix after running Alevin. 
+The reason we like to use an object like this, rather than simply store the gene by cell counts matrix as a matrix on its own, is because with a `SingleCellExperiment` object we can add additional information about each of the cell barcodes in the `colData` and each of the genes identified in our experiment in the `rowData`. 
+
+Additionally, you saw when we performed normalization that this object then stored both our original `counts` matrix and our new, normalized `logcounts` matrix. 
+You will also see as we move through the course that as we perform additional analysis, those results can be stored in the same `SingleCellExperiment` object. 
+This is helpful for keeping all of the details and analysis pertaining to this sample packaged in one piece.
+
+Let's take a look at some of the components of a `SingleCellExperiment` and see how they work together. 
+To do that, we will use the same `SingleCellExperiment` object that we saved after performing filtering of the the bladder sample in `02-filtering_scRNA.Rmd`.
+
+```{r}
+# file paths to filtered sce 
+data_dir <- file.path("data", "tabula-muris")
+filtered_sce_file <- file.path(data_dir, "filtered", "filtered_sce.rds")
+
+# read in filtered sce 
+filtered_bladder_sce <- readr::read_rds(filtered_sce_file)
+```
+
+First, let's just take a look at the `SingleCellExperiment`. 
+
+```{r}
+filtered_bladder_sce
+```
+
+When you look at the object, you will notice that this one holds 1 assay, the `counts` assay. 
+The `counts` assay is the main meat of the object and houses the sparse matrix that is the gene by cell counts matrix obtained from quantification with Alevin. 
+The `dim` slot will correspond to the dimensions of the matrix that lives in the `counts` assay. 
+The `rownames` will correspond to the names of the rows and the `colnames` will correspond to the names of the columns for the matrix in the `counts` assay. 
+In the case of a `SingleCellExperiment`, the row names are gene identifiers and the column names are the cell barcodes.
+
+
+You will also see two additional slots, `colData` and `rowData`. 
+These hold two DataFrames that contain metadata information about the columns and the rows of the `counts` assay, respectively. 
+
+In the `colData`, the row names will correspond to the column names of the `counts` assay, i.e. the cell barcodes. 
+Let's take a look at the column names and see if they are in fact equal to the row names of the `colData`.
+
+```{r}
+head(colnames(filtered_bladder_sce))
+```
+
+The first 5 column names, should also be the same cell barcodes that are found in the first 5 rows of the `colData`, does this appear to be true? 
+
+```{r}
+head(colData(filtered_bladder_sce))
+```
+
+Let's check by using `all.equal` to make sure that all of the column names are the same as the rownames of the `colData` as it appears to be with the first 5. 
+
+```{r}
+all.equal(colnames(filtered_bladder_sce), rownames(colData(filtered_bladder_sce)))
+```
+
+This shows us that the column names of our `SingleCellExperiment` object, which contain the cell barcodes found in our dataset, are equal to the rownames of the `colData`.
+When we looked at the head of `colData`, we saw that `colData` stores a DataFrame where the columns each have metadata corresponding to each cell barcode in the counts matrix. 
+
+Another way to access `colData` is to use the `$` operator, and we can directly access any of the columns that are found in the `colData`. 
+
+```{r}
+# using the $ operator we can access a vector with the total umi counts per cell 
+filtered_bladder_sce$sum 
+```
+
+All of these same properties are found in the `rowData` as well and we anticipate that the row names of our `SingleCellExperiment` will be equivalent to the row names of the DataFrame from the `rowData`. 
+
+```{r}
+all.equal(rownames(filtered_bladder_sce), rownames(rowData(filtered_bladder_sce)))
+```
+
+Just like with the `colData`, inside the `rowData` is a DataFrame where each column contains metadata about each of the genes. 
+Let's take a look at the `rowData` to see what type of information is stored about the genes in this particular `SingleCellExperiment`. 
+
+```{r}
+head(rowData(filtered_bladder_sce))
+```
+ 
+Here, we cannot access the columns of the `rowData` using the `$` directly from our `SingleCellExperiment`, but we can instead use the `$` if we specifically grab the `rowData` first.
+
+```{r}
+rowData(filtered_bladder_sce)$mean[1:10]
+```
+
+For more information on working with `SingleCellExperiments`, we encourage you to take a look at [The Essentials of sce from Orchestrating Single Cell Analysis](https://robertamezquita.github.io/orchestratingSingleCellAnalysis/data-infrastructure.html#the-essentials-of-sce). 
+
+## More on ggplots
+
+Before performing filtering in `02-filtering_scRNA.Rmd`, we created quite a few density plots to help us look at the distribution of various quality metrics. 
+When we did that, we skipped the `data` argument and only used the `mapping` argument in `ggplot`. 
+The reason that we did this is because the input that we were using was a vector rather than a data frame. 
+When using `ggplot`, the expected input for the `data` argument is a data frame (which is not synonymous to the SingleCellExperiment object's DataFrame). 
+If we were to use a data frame, `mapping` is then used to signify which columns of the data frame would need to be plotted on the x-axis and which columns would need to be plotted on the y-axis. 
+
+We can grab the `colData` from our `SingleCellExperiment` object and can plot the `sum` column, or total UMI counts, on the x-axis, and the `detected` column, or the number of genes detected, on the y-axis. 
+Let's see how it would look if we were using `ggplot` to plot directly from a data frame. 
+
+```{r}
+# convert colData to data.frame from DataFrame 
+coldata <- as.data.frame(colData(filtered_bladder_sce))
+
+# use ggplot to plot coldata using data argument 
+ggplot(data = coldata,
+       mapping = aes(x = sum,
+                     y = detected)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Total Count",
+       y = "Number of Genes Expressed") + 
+  theme_bw()
+
+```
+
+To make this plot, we used `data=coldata`, where `coldata` was a data frame.
+We are also using the `mapping` argument to signify which columns of the data frame we want to plot by using `mapping = aes(x = sum, y = detected)`. 
+
+However, if we didn't have a data frame but we only had two vectors each with the total umi count and number of genes detected, we could skip the `data` argument and input the names of the vectors directly into the `mapping` argument to achieve the same plot. 
+
+```{r}
+# get a vector each with sum and genes detected from the coldata data frame
+total_umi_count <- coldata %>%
+  dplyr::pull(sum)
+
+genes_detected <- coldata %>%
+  dplyr::pull(detected)
+
+# use ggplot with mapping of vectors, skipping the data argument 
+ggplot(mapping = aes(x = total_umi_count,
+                     y = genes_detected)) +
+    geom_point(alpha = 0.5) +
+  labs(x = "Total Count",
+       y = "Number of Genes Expressed") + 
+  theme_bw()
+
+```
+
+Although we skipped the `data` argument, because we directly input the vectors with the data points to plot, we were still able to make the same plot. 
+
+## Demystifying normalization
+
+A few questions came up on how to normalize data and more insight into the normalization process. 
+To answer these questions we are going to dive a little deeper into normalization and some different types of normalization. 
+
+### Why do we need to normalize our data? 
+
+Single-cell RNA sequencing inherently comes with technical confounders that, if not accounted for, can impact the interpretation of downstream analysis. 
+Technical variables include differences in sequencing depth and cell size across cells in a single-cell library ([Stegle _et al._ 2015](https://doi.org/10.1038/nrg3833).)
+
+If we were to proceed with downstream analysis such as differential gene expression and cell clustering without accounting for such effects, these technical problems could impact the overall conclusions.
+
+For example, let's consider two cells with different sequencing depths. 
+Cell A has a total of 20,000 counts and 10,000 of those counts come from gene X. 
+Cell B has only 10,000 counts but 5,000 counts come from gene X. 
+Prior to normalization, a raw comparison of the counts for gene X in cell A vs. cell B would show that gene X is downregulated in cell B. 
+However if we look at the ratio of counts corresponding to gene X/total counts, both cells have 50% of their reads corresponding to this gene and you would presume that it is not downregulated. 
+But how would we know if it truly is downregulated or if it is because of a difference with sequencing depth? 
+
+By performing normalization we can account for the technical variation between cells in our data and maximize biological variation, allowing us to make more accurate conclusions from downstream analysis.
+
+One thing to note here is that we do not need to have metadata or associated annotation information about our cells to perform normalization. 
+In class we had the benefit of added metadata that we used simply to visualize the effects of normalization, but the addition of metadata did not alter the actual normalization and is not a necessary component.
+
+Let's walk through some options for performing normalization of our counts matrix.
+
+### Library scaling for normalization 
+
+One commonly used approach for normalization of single-cell RNA seq data is based on library scaling, where each count is scaled by a cell-specific scaling factor ([Anders and Huber 2010](https://doi.org/10.1186/gb-2010-11-10-r106)).
+
+The most basic library scaling methods assume that the only important technical effect among cells is the total number of RNA molecules sequenced; any other technical factors like changes in PCR amplification or mRNA capture efficiency affect each cell equally.
+Another assumption made is that the composition of the library is homogeneous ([Robinson and Oshlack 2010](https://doi.org/10.1186/gb-2010-11-3-r25)). 
+
+For this method, the cell-specific scaling factor, or size factor, is calculated as follows: 
+
+1. Calculate the geometric mean of the expression counts for each gene across all cells. 
+2. Compute the ratio of the expression of each gene to the geometric mean across all cells. 
+3. The size factor is equal to the median of the gene/geometric mean ratio across all genes for that cell. 
+
+The drawback of this method is that only genes with non-zero expression values can be used to calculate the geometric mean. 
+Single-cell RNA-seq datasets commonly have high dropout rates and do not fit the assumption of homogeneous cell populations. 
+Therefore, library scaling should be used with caution with scRNA-seq as it can impact interpretation of downstream analysis. 
+
+### Scran/Deconvolution for normalization
+
+There are two reasons that using the library scaling method alone may not be the best approach for single-cell RNA seq datasets: 
+
+1. Single-cell RNA seq datasets tend to have high dropout and low counts 
+2. The expected variations in composition of cell types and cell states break the assumption of a homogenous library. 
+
+Another common approach that we discussed in class is to use the `scran` and `scater` packages to estimate size factors based on a pool or cluster of cells ([Lun _et al._ 2016](https://doi.org/10.1186/s13059-016-0947-7)).
+Here, before calculating size factors, cells are first pooled into clusters based on similar patterns of gene expression using an approximation of PCA. 
+Once cells are assigned to a cluster, size factors are computed for each pool first and then "deconvolved" across each cell in the pool. 
+
+The rationale behind pooling cells first is two-fold - 1) to increase the total number of counts and overcome dropout for more accurate size factor estimation and 2) to remove the assumption that the entire library is homogeneous. 
+Rather, we now assume that each cluster is homogeneous. 
+
+Using this method helps account for bias due to the presence of differing cell types or cell states within a single-cell RNA seq dataset that could impact the normalization and our downstream gene expression estimates. 
+
+### Log transformation
+
+Normalized counts are computed by dividing the raw counts for each gene by the respective size factor for that cell.
+The normalized counts matrix is then transformed using a log transformation. 
+
+There are a few reasons we typically perform log transformation of our matrix: 
+
+- Log transformation mitigates the relationship between high gene expression and high variance  
+- Reduces general skewness of the data (makes the distributions "more normal") to fit the assumptions of downstream tools 
+
+Prior to log transformation, a pseudocount will also be added to our normalized matrix to avoid undefined values of log(0). 
+The typical pseudocount used is 1, as a pseudocount of 1 preserves sparsity from the original matrix. 
+
+### Additional resources 
+
+If you still have lingering questions about normalization or want to know about even more methods you can use, we've provided some more resources on Normalization methods: 
+
+- [Orchestrating Single Cell Analysis Chapter on Normalization](http://bioconductor.org/books/3.14/OSCA.basic/normalization.html)
+- [Hemberg lab scRNA-seq course section on Normalization methods](https://scrnaseq-course.cog.sanger.ac.uk/website/cleaning-the-expression-matrix.html#normalization-theory)
+- Review on Computational challenges in single-cell, including a summary on Normalization and technical variance in scRNA-seq([Stegle _et al._ 2015](https://doi.org/10.1038/nrg3833))]
+- Information on using spike-ins for Normalization with scRNA-seq ([T.L.Lun _et al._ 2017](http://www.genome.org/cgi/doi/10.1101/gr.222877.117))
+
+
+## Working with multiple samples
+
+We received multiple questions about working with multiple samples and data integration. 
+There are many different approaches and methods to performing data integration of multiple samples and the method that you choose will ultimately depend on the question you are trying to answer.
+Although this particular topic is outside the scope of this course, we encourage you to take a look at some additional resources: 
+
+- [Orchestrating Single Cell Analysis on Data Integration](http://bioconductor.org/books/3.14/OSCA.multisample/integrating-datasets.html)
+- [Comprehensive integration of single-cell data, Stuart *et al*, 2019](https://doi.org/10.1016/j.cell.2019.05.031)
+- [Tutorial on integrating data for differential gene expression in Seurat](https://satijalab.org/seurat/archive/v3.1/immune_alignment.html)
+- [Correcting batch effects in single-cell RNA seq data](http://bioconductor.org/packages/devel/bioc/vignettes/batchelor/inst/doc/correction.html)
+- [Integrated analysis of multimodal single-cell data, Hao *et al*, 2021](https://doi.org/10.1016/j.cell.2021.04.048)
+
