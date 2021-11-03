@@ -278,3 +278,7 @@ Although this particular topic is outside the scope of this course, we encourage
 - [Correcting batch effects in single-cell RNA seq data](http://bioconductor.org/packages/devel/bioc/vignettes/batchelor/inst/doc/correction.html)
 - [Integrated analysis of multimodal single-cell data, Hao *et al*, 2021](https://doi.org/10.1016/j.cell.2021.04.048)
 
+```{r}
+sessionInfo()
+```
+
